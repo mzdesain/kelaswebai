@@ -172,61 +172,66 @@
 
     <script>
         const daftarPeserta = [
-        "MUZANNI",
-        "ALI YAHYA",
-        "MUHAMMAD RIDWAN",
-        "MUHAMMAD SYAFI'IE",
-        "RIA HENDARTI R",
-        "GAZALI ABU USAID, S.H",
-        "ARIF ASNSAR SYAH",
-        "SIGIT TEGUH ALGAZA",
-        "HUDZAIFAH HIZBURRAHMAN",
-        "DINA YULIA FITRI",
-        "NURLIA",
-        "NADYA RUMAISHA",
-        "ANIS ABD RAHMAN",
-        "RESTU AHMAD FADILLAH, S. Ag.",
-    ];
+            "MUZANNI",
+            "ALI YAHYA",
+            "MUHAMMAD RIDWAN",
+            "MUHAMMAD SYAFI'IE",
+            "RIA HENDARTI R",
+            "GAZALI ABU USAID, S.H",
+            "ARIF ASNSAR SYAH",
+            "SIGIT TEGUH ALGAZA",
+            "HUDZAIFAH HIZBURRAHMAN",
+            "DINA YULIA FITRI",
+            "NURLIA",
+            "NADYA RUMAISHA",
+            "ANIS ABD RAHMAN",
+            "RESTU AHMAD FADILLAH, S. Ag.",
+        ];
 
-    function updateCertPreview(val) {
-        const render = document.getElementById('render-name');
-        const btnUnduh = document.querySelector('button[onclick="downloadCertificate()"]');
-        
-        // Mengubah input user menjadi Kapital untuk dicocokkan
-        const inputNama = val.trim().toUpperCase();
-        
-        if (daftarPeserta.includes(inputNama)) {
-            render.innerText = inputNama;
-            btnUnduh.disabled = false;
-            btnUnduh.style.opacity = "1";
-            btnUnduh.style.cursor = "pointer";
-            btnUnduh.innerHTML = '<i class="fas fa-file-export"></i> UNDUH';
-        } else {
-            render.innerText = "NAMA TIDAK TERDAFTAR";
-            btnUnduh.disabled = true;
-            btnUnduh.style.opacity = "0.5";
-            btnUnduh.style.cursor = "not-allowed";
-            btnUnduh.innerHTML = '<i class="fas fa-times-circle"></i> NAMA TIDAK VALID';
+        function updateCertPreview(val) {
+            const render = document.getElementById('render-name');
+            const btnUnduh = document.querySelector('button[onclick="downloadCertificate()"]');
+            
+            // Mencari nama di daftar yang cocok (case-insensitive)
+            const inputNama = val.trim().toLowerCase();
+            const namaDitemukan = daftarPeserta.find(nama => nama.toLowerCase() === inputNama);
+            
+            if (namaDitemukan) {
+                // Tampilkan nama asli sesuai list (termasuk huruf kecil/gelar)
+                render.innerText = namaDitemukan;
+                btnUnduh.disabled = false;
+                btnUnduh.style.opacity = "1";
+                btnUnduh.style.cursor = "pointer";
+                btnUnduh.innerHTML = '<i class="fas fa-file-export"></i> UNDUH';
+            } else {
+                render.innerText = "NAMA TIDAK TERDAFTAR";
+                btnUnduh.disabled = true;
+                btnUnduh.style.opacity = "0.5";
+                btnUnduh.style.cursor = "not-allowed";
+                btnUnduh.innerHTML = '<i class="fas fa-times-circle"></i> NAMA TIDAK VALID';
+            }
+
+            // Ukuran font otomatis berdasarkan panjang nama ditemukan atau input
+            const displayNama = namaDitemukan || val;
+            let fontSize = 72; 
+            if (displayNama.length > 15) fontSize = 55;
+            if (displayNama.length > 20) fontSize = 42;
+            if (displayNama.length > 25) fontSize = 32;
+            render.style.fontSize = fontSize + 'px';
         }
-
-        // Ukuran font otomatis
-        let fontSize = 72; 
-        if (inputNama.length > 15) fontSize = 55;
-        if (inputNama.length > 20) fontSize = 42;
-        if (inputNama.length > 25) fontSize = 32;
-        render.style.fontSize = fontSize + 'px';
-    }
 
         function downloadCertificate() {
             const certElement = document.getElementById('sertifikat-render');
-            const namaFile = document.getElementById('edit-cert-name').value || "Participant";
+            const namaInput = document.getElementById('edit-cert-name').value.trim().toLowerCase();
+            const namaFix = daftarPeserta.find(nama => nama.toLowerCase() === namaInput) || "Participant";
+            
             html2canvas(certElement, { 
                 scale: 3, 
                 useCORS: true,
                 backgroundColor: "#324166"
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `Sertifikat_${namaFile.replace(/\s+/g, '_')}.jpg`;
+                link.download = `Sertifikat_${namaFix.replace(/\s+/g, '_')}.jpg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.95);
                 link.click();
             });
